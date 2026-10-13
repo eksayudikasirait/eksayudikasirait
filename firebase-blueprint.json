@@ -1,0 +1,167 @@
+{
+  "entities": {
+    "CloudTokenSync": {
+      "title": "CloudTokenSync",
+      "description": "Konfigurasi dan pembaruan kode token ujian online real-time lintas perangkat",
+      "type": "object",
+      "properties": {
+        "customTeacherToken": {
+          "type": "string",
+          "description": "Kode token ujian 3-6 karakter alfanumerik",
+          "maxLength": 6
+        },
+        "tokenSheetUrl": {
+          "type": "string",
+          "description": "Tautan Google Sheets KODE TOKEN UJIAN"
+        },
+        "googleSheetUrl": {
+          "type": "string",
+          "description": "Tautan Google Sheets Rekap Nilai Siswa"
+        },
+        "appsScriptWebAppUrl": {
+          "type": "string",
+          "description": "URL Deployment Web App Google Apps Script"
+        },
+        "googleDocUrl": {
+          "type": "string",
+          "description": "Tautan Google Dokumen Soal Ujian"
+        },
+        "oauthAccessToken": {
+          "type": "string",
+          "description": "OAuth Access Token"
+        },
+        "oauthExpiresAt": {
+          "type": "number",
+          "description": "Waktu kedaluwarsa OAuth"
+        },
+        "updatedAt": {
+          "type": "number",
+          "description": "Waktu pembaruan milidetik"
+        }
+      }
+    },
+    "StudentDashboardSync": {
+      "title": "StudentDashboardSync",
+      "description": "Dokumen state global rekapitulasi ujian siswa lintas perangkat",
+      "type": "object",
+      "properties": {
+        "useInitialSubmissions": {
+          "type": "boolean",
+          "description": "Status penggunaan data awal"
+        },
+        "isCleared": {
+          "type": "boolean",
+          "description": "Status reset data ujian oleh guru"
+        },
+        "clearedAt": {
+          "type": "number",
+          "description": "Waktu reset data"
+        },
+        "activeSessionId": {
+          "type": "string",
+          "description": "ID Sesi Ujian Aktif saat ini"
+        },
+        "activeSessionName": {
+          "type": "string",
+          "description": "Nama atau judul sesi ujian aktif saat ini"
+        },
+        "sessionCreatedAt": {
+          "type": "number",
+          "description": "Waktu pembuatan sesi ujian baru dalam milidetik"
+        },
+        "updatedAt": {
+          "type": "number",
+          "description": "Waktu sinkronisasi data"
+        },
+        "source": {
+          "type": "string",
+          "description": "Sumber data sinkronisasi"
+        }
+      }
+    },
+    "ClassroomChatRoom": {
+      "title": "ClassroomChatRoom",
+      "description": "Dokumen ruang obrolan real-time terpisah berdasarkan masing-masing ruang kelas (VII-1 s/d VIII-6)",
+      "type": "object",
+      "properties": {
+        "kelas": {
+          "type": "string",
+          "description": "Kode ruang kelas (misal VIII-1, VIII-2, VII-1)"
+        },
+        "messages": {
+          "type": "array",
+          "description": "Daftar pesan diskusi internal siswa dalam satu ruang kelas"
+        },
+        "deletedIds": {
+          "type": "array",
+          "description": "Daftar ID pesan yang dihapus oleh guru"
+        },
+        "updatedAt": {
+          "type": "number",
+          "description": "Waktu pembaruan terakhir dalam milidetik"
+        }
+      }
+    },
+    "ClassroomAnnouncementBoard": {
+      "title": "ClassroomAnnouncementBoard",
+      "description": "Dokumen Papan Pengumuman guru yang dipisahkan berdasarkan kelas (VII-1 s/d VIII-6) di Firestore",
+      "type": "object",
+      "properties": {
+        "kelas": {
+          "type": "string",
+          "description": "Kode ruang kelas tujuan pengumuman (misal VIII-1, VIII-2, VII-1)"
+        },
+        "announcements": {
+          "type": "array",
+          "description": "Daftar pesan penting pengumuman dari guru khusus untuk ruang kelas tersebut"
+        },
+        "deletedIds": {
+          "type": "array",
+          "description": "Daftar ID pengumuman yang dihapus oleh guru"
+        },
+        "updatedAt": {
+          "type": "number",
+          "description": "Waktu pembaruan terakhir dalam milidetik"
+        }
+      }
+    },
+    "StudentAttendance": {
+      "title": "StudentAttendance",
+      "description": "Data absensi kehadiran siswa dengan verifikasi biometrik sidik jari",
+      "type": "object",
+      "properties": {
+        "namaSiswa": { "type": "string" },
+        "nisNisn": { "type": "string" },
+        "kelas": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "status": { "type": "string" },
+        "metodeVerifikasi": { "type": "string" },
+        "deviceModel": { "type": "string" },
+        "deviceBrand": { "type": "string" },
+        "updatedAt": { "type": "number" }
+      }
+    }
+  },
+  "firestore": {
+    "/cloudTokenSync/{docId}": {
+      "schema": "CloudTokenSync",
+      "description": "Sinkronisasi kode token ujian secara event-driven ke seluruh perangkat"
+    },
+    "/studentDashboardSync/{docId}": {
+      "schema": "StudentDashboardSync",
+      "description": "Sinkronisasi data rekapitulasi nilai dan status reset siswa"
+    },
+    "/classroomChats/{roomId}": {
+      "schema": "ClassroomChatRoom",
+      "description": "Ruang obrolan real-time terpisah untuk masing-masing kelas (VIII-1, VIII-2, dst.)"
+    },
+    "/classroomAnnouncements/{roomId}": {
+      "schema": "ClassroomAnnouncementBoard",
+      "description": "Papan Pengumuman pesan penting dari guru yang dipisahkan berdasarkan kelas (VII-1 s/d VIII-6)"
+    },
+    "/studentAttendance/{docId}": {
+      "schema": "StudentAttendance",
+      "description": "Catatan log presensi biometrik sidik jari siswa"
+    }
+  }
+}

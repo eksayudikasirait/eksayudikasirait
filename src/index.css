@@ -1,0 +1,871 @@
+@import "tailwindcss";
+
+@keyframes ripple-spread {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.8);
+    opacity: 0;
+  }
+}
+
+.animate-ripple-spread {
+  animation: ripple-spread 0.65s cubic-bezier(0, 0, 0.2, 1) forwards;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after,
+  html,
+  body,
+  #root,
+  .select-all,
+  .select-text {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-drag: none;
+  }
+
+  *::selection {
+    background: transparent !important;
+    color: inherit !important;
+  }
+
+  *::-moz-selection {
+    background: transparent !important;
+    color: inherit !important;
+  }
+
+  html {
+    background-color: #020617;
+    color: #f1f5f9;
+    min-height: 100%;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  html:not(.dark) {
+    background-color: #f0f7ff;
+    color: #0f172a;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    width: 100%;
+    margin: 0;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+    overflow-x: hidden;
+  }
+
+  #root {
+    min-height: 100vh;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  html:fullscreen,
+  html:-webkit-full-screen,
+  html:-moz-full-screen,
+  html:-ms-fullscreen,
+  html.ios-fullscreen-immersive {
+    width: 100vw;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    background-color: #020617;
+  }
+
+  .font-display {
+    font-family: 'Syne', 'Plus Jakarta Sans', sans-serif;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'IBM Plex Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.exam-lock-select {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+/* Proteksi Tangkapan Layar via Cetak (Print / Save as PDF) HANYA saat sesi ujian sedang berlangsung (.exam-lock-select) */
+@media print {
+  .exam-lock-select,
+  .exam-lock-select *,
+  .exam-secure-area,
+  .exam-secure-area * {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Format cetak bersih untuk Laporan Siswa & Dashboard Monitoring */
+  html, body, #root {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  nav,
+  header,
+  footer,
+  button,
+  .no-print,
+  .print\:hidden,
+  .fixed.inset-0,
+  [role="dialog"],
+  .backdrop-blur-xs,
+  .backdrop-blur-sm {
+    display: none !important;
+  }
+
+  .print\:block {
+    display: block !important;
+  }
+
+  #anbk-printable-monitoring-report {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: none !important;
+  }
+
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+}
+
+/* Proteksi Sensor Gelap Layar (Blackout Buffer) saat Fokus Hilang / Tangkapan Layar Berjalan */
+.window-blur-active .exam-main-content,
+.window-blur-active .exam-secure-area,
+.window-blur-active .exam-lock-select,
+.window-blur-active main,
+.exam-blackout-buffer-active .exam-main-content,
+.exam-blackout-buffer-active main {
+  filter: blur(80px) brightness(0) !important;
+  background-color: #000000 !important;
+  color: transparent !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: none !important;
+}
+
+/* Watermark Forensik Digital Dinamis Tanda Air Siswa (Identitas Real-Time Lintas Layar) */
+.exam-forensic-watermark {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
+  z-index: 25;
+  opacity: 0.13;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 24px;
+  transform: rotate(-13deg) scale(1.15);
+  transform-origin: center center;
+}
+
+/* Flash Sensor Hitam Anti-Screenshot saat tombol tangkapan layar / gesture / shortcut ditekan */
+.exam-anti-screenshot-shield {
+  position: fixed;
+  inset: 0;
+  z-index: 9999999 !important;
+  background-color: #000000 !important;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #f43f5e;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  text-align: center;
+  pointer-events: all;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Menyembunyikan seluruh ikon kunci / autofill / saran sandi bawaan browser & password manager */
+input::-ms-reveal,
+input::-ms-clear,
+input::-webkit-credentials-auto-fill-button,
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-caps-lock-indicator,
+input::-webkit-search-decoration,
+input::-webkit-search-cancel-button,
+input::-webkit-search-results-button,
+input::-webkit-search-results-decoration {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0 !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+@keyframes examSlideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translate3d(32px, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes examSlideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translate3d(-32px, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-question-slide-next {
+  animation: examSlideInFromRight 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+.animate-question-slide-prev {
+  animation: examSlideInFromLeft 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+/* Animasi Transisi Masuk Fade-In untuk Komponen Rapor Siswa & Grafik Batang Nilai */
+@keyframes raporFadeIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-rapor-fade-in {
+  animation: raporFadeIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+@keyframes raporChartFadeIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.animate-rapor-chart {
+  animation: raporChartFadeIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+/* Animasi Fade-In & Scale-Up Halus untuk Peringkat 5 Besar (Ranking Siswa) */
+@keyframes rankingSectionFadeScaleIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes rankingCardPopIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.96);
+  }
+  65% {
+    opacity: 1;
+    transform: translate3d(0, -2px, 0) scale(1.008);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes rankingRowSlideScaleIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(-10px, 8px, 0) scale(0.975);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.animate-ranking-section-in {
+  animation: rankingSectionFadeScaleIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.animate-ranking-card-in {
+  animation: rankingCardPopIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+.animate-ranking-row-in {
+  animation: rankingRowSlideScaleIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+.ranking-stagger-1 {
+  animation-delay: 40ms;
+}
+.ranking-stagger-2 {
+  animation-delay: 95ms;
+}
+.ranking-stagger-3 {
+  animation-delay: 150ms;
+}
+.ranking-stagger-4 {
+  animation-delay: 205ms;
+}
+.ranking-stagger-5 {
+  animation-delay: 260ms;
+}
+
+/* Animasi Pop-In Interaktif untuk Panel Peringkat 5 Besar (Google Sheets Live Sync) */
+@keyframes top5PanelPopIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0) scale(0.94);
+  }
+  70% {
+    opacity: 1;
+    transform: translate3d(0, -3px, 0) scale(1.012);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes top5CardSpringPop {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.88);
+  }
+  65% {
+    opacity: 1;
+    transform: translate3d(0, -4px, 0) scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.animate-top5-panel-pop {
+  animation: top5PanelPopIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+.animate-top5-card-pop {
+  animation: top5CardSpringPop 0.52s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  will-change: transform, opacity;
+}
+
+@keyframes raporBarGlowSweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-chart-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(56, 189, 248, 0.12) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: raporBarGlowSweep 2.5s infinite linear;
+}
+
+@keyframes qrCameraPulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7), 0 0 16px rgba(16, 185, 129, 0.65);
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(52, 211, 153, 0), 0 0 26px rgba(52, 211, 153, 0.95);
+    transform: translateY(-1px) scale(1.015);
+  }
+}
+
+@keyframes qrScannerSweep {
+  0% {
+    transform: translateX(-110%) skewX(-18deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.75;
+  }
+  70% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateX(220%) skewX(-18deg);
+    opacity: 0;
+  }
+}
+
+.qr-camera-active-glow {
+  position: relative;
+  overflow: hidden;
+  animation: qrCameraPulseGlow 1.6s ease-in-out infinite;
+}
+
+.qr-camera-active-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 45%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 100%
+  );
+  animation: qrScannerSweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+/* Animasi Berdenyut (Pulse) Khusus untuk Banner Peringatan & Indikator Baterai Lemah / Kritis (< 15%) */
+@keyframes criticalBatteryBannerPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.75), 0 0 22px rgba(225, 29, 72, 0.7);
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(244, 63, 94, 0), 0 0 32px rgba(251, 113, 133, 0.95);
+    transform: scale(1.006);
+    opacity: 0.94;
+  }
+}
+
+@keyframes criticalBatteryIndicatorPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.85), 0 0 14px rgba(225, 29, 72, 0.75);
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(244, 63, 94, 0), 0 0 22px rgba(251, 113, 133, 0.98);
+    transform: scale(1.035);
+    opacity: 0.92;
+  }
+}
+
+@keyframes lowBatteryBannerPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.65), 0 0 18px rgba(245, 158, 11, 0.55);
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(245, 158, 11, 0), 0 0 28px rgba(251, 191, 36, 0.85);
+    transform: scale(1.004);
+    opacity: 0.92;
+  }
+}
+
+.animate-battery-critical-pulse {
+  animation: criticalBatteryBannerPulse 1.35s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform, box-shadow, opacity;
+}
+
+.animate-battery-indicator-critical-pulse {
+  animation: criticalBatteryIndicatorPulse 1.15s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform, box-shadow, opacity;
+}
+
+.animate-battery-low-pulse {
+  animation: lowBatteryBannerPulse 1.7s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform, box-shadow, opacity;
+}
+
+/* Animasi Transisi Halus & Perayaan Saat Siswa Menyelesaikan & Mengumpulkan Ujian */
+@keyframes examResultRevealIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0) scale(0.975);
+  }
+  65% {
+    opacity: 1;
+    transform: translate3d(0, -3px, 0) scale(1.004);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes examCelebrationBannerPop {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -18px, 0) scale(0.95);
+  }
+  70% {
+    opacity: 1;
+    transform: translate3d(0, 3px, 0) scale(1.015);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.animate-exam-result-reveal {
+  animation: examResultRevealIn 0.68s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+.animate-exam-celebration-pop {
+  animation: examCelebrationBannerPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  will-change: transform, opacity;
+}
+
+/* Animasi Transisi Baris Tabel Rekap Siswa & Kolom Ranking Saat Data Berubah atau Disortir */
+@keyframes rekapRowSortTransition {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.985);
+  }
+  65% {
+    opacity: 1;
+    transform: translate3d(0, -1.5px, 0) scale(1.003);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes rankingBadgeSortPop {
+  0% {
+    opacity: 0.25;
+    transform: scale(0.68) rotate(-6deg) translateY(6px);
+    filter: brightness(1.35);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.16) rotate(2deg) translateY(-2px);
+    box-shadow: 0 0 18px rgba(251, 191, 36, 0.65);
+  }
+  82% {
+    transform: scale(0.96) rotate(0deg) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg) translateY(0);
+    filter: brightness(1);
+  }
+}
+
+@keyframes rankingCellGlowPulse {
+  0% {
+    background-color: rgba(251, 191, 36, 0.26);
+    box-shadow: inset 0 0 14px rgba(251, 191, 36, 0.35);
+  }
+  50% {
+    background-color: rgba(56, 189, 248, 0.16);
+    box-shadow: inset 0 0 10px rgba(56, 189, 248, 0.25);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+
+.animate-rekap-row-sort {
+  animation: rekapRowSortTransition 0.44s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+.animate-ranking-badge-pop {
+  animation: rankingBadgeSortPop 0.54s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  will-change: transform, opacity, box-shadow;
+}
+
+.animate-ranking-cell-flash {
+  animation: rankingCellGlowPulse 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 18mm 12mm 18mm 12mm;
+
+    @top-center {
+      content: "DOKUMEN RESMI RINGKASAN HASIL UJIAN ANBK INFORMATIKA — UPTD SMP NEGERI 7 KISARAN";
+      font-size: 8pt;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    @bottom-right {
+      content: "Halaman " counter(page) " dari " counter(pages);
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: #0f172a;
+    }
+  }
+
+  /* Sembunyikan seluruh elemen navigasi, tombol, sidebar, input, dan kontrol non-esensial saat mencetak */
+  header:not(.print-formal-header),
+  nav,
+  aside,
+  footer:not(.print-formal-footer),
+  button,
+  input,
+  select,
+  textarea,
+  label[title],
+  .no-print,
+  .print-hidden,
+  [data-no-print="true"],
+  [role="navigation"],
+  [role="status"],
+  [role="dialog"] {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-flex {
+    display: flex !important;
+  }
+
+  /* Counter halaman otomatis untuk dokumen cetak */
+  body {
+    counter-reset: print-page;
+  }
+
+  /* Header Formal Otomatis (Nama Siswa, Kelas, & Tanggal Ujian) melalui atribut data & elemen header cetak */
+  .exam-summary-print-root {
+    position: relative;
+    padding-top: 4mm !important;
+    padding-bottom: 12mm !important;
+  }
+
+  .exam-summary-print-root::before {
+    content: "RINGKASAN HASIL UJIAN RESMI  —  NAMA SISWA: " attr(data-student-name) "   |   KELAS: " attr(data-student-class) "   |   TANGGAL UJIAN: " attr(data-exam-date);
+    display: block;
+    font-size: 8.5pt;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    padding: 6px 10px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #0f172a;
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+
+  .print-formal-header {
+    display: block !important;
+    width: 100% !important;
+    margin-bottom: 12px !important;
+    padding: 10px 14px !important;
+    border: 1.5px solid #0f172a !important;
+    border-radius: 8px !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Footer Nomor Halaman Otomatis di bagian bawah setiap halaman cetak */
+  .print-formal-footer {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    padding: 6px 12px;
+    font-size: 8.5pt;
+    font-weight: 700;
+    border-top: 1px solid #94a3b8;
+    background-color: #ffffff;
+    color: #0f172a;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .print-page-number::after {
+    content: "Halaman " counter(page);
+  }
+
+  /* ========================================================================= */
+  /* MODE 1 (DEFAULT): CETAK KERTAS PUTIH BERSIH (HEMAT TINTA)                 */
+  /* ========================================================================= */
+  html:not(.print-dark-theme),
+  html:not(.print-dark-theme) body,
+  html:not(.print-dark-theme) #root,
+  html:not(.print-dark-theme) .min-h-screen,
+  html:not(.print-dark-theme) .exam-summary-print-root {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  html:not(.print-dark-theme) .exam-summary-print-root .print-card,
+  html:not(.print-dark-theme) .exam-summary-print-root .print-question-item {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  html:not(.print-dark-theme) .exam-summary-print-root h1,
+  html:not(.print-dark-theme) .exam-summary-print-root h2,
+  html:not(.print-dark-theme) .exam-summary-print-root h3,
+  html:not(.print-dark-theme) .exam-summary-print-root p,
+  html:not(.print-dark-theme) .exam-summary-print-root span,
+  html:not(.print-dark-theme) .exam-summary-print-root strong,
+  html:not(.print-dark-theme) .exam-summary-print-root div {
+    color: #0f172a !important;
+    text-shadow: none !important;
+  }
+
+  html:not(.print-dark-theme) .exam-summary-print-root .print-badge-pass {
+    color: #065f46 !important;
+    border-color: #10b981 !important;
+    background-color: #ecfdf5 !important;
+  }
+
+  html:not(.print-dark-theme) .exam-summary-print-root .print-badge-fail {
+    color: #9f1239 !important;
+    border-color: #f43f5e !important;
+    background-color: #fff1f2 !important;
+  }
+
+  /* ========================================================================= */
+  /* MODE 2 (OPSI GURU): CETAK DENGAN WARNA TEMA DARK MODE (ROYAL NAVY)        */
+  /* ========================================================================= */
+  html.print-dark-theme,
+  html.print-dark-theme body,
+  html.print-dark-theme #root,
+  html.print-dark-theme .min-h-screen,
+  html.print-dark-theme .exam-summary-print-root,
+  html.print-dark-theme * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html.print-dark-theme,
+  html.print-dark-theme body,
+  html.print-dark-theme #root,
+  html.print-dark-theme .min-h-screen,
+  html.print-dark-theme .exam-summary-print-root {
+    background-color: #020617 !important;
+    color: #f8fafc !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  html.print-dark-theme .exam-summary-print-root::before {
+    background-color: #0f172a !important;
+    color: #fbbf24 !important;
+    border-bottom-color: #38bdf8 !important;
+  }
+
+  html.print-dark-theme .print-formal-header {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+    border-color: #38bdf8 !important;
+  }
+
+  html.print-dark-theme .print-formal-footer {
+    background-color: #0f172a !important;
+    color: #e2e8f0 !important;
+    border-top-color: #334155 !important;
+  }
+
+  html.print-dark-theme .exam-summary-print-root .print-card,
+  html.print-dark-theme .exam-summary-print-root .print-question-item {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+    border-color: #1e293b !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+

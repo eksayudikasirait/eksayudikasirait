@@ -1,0 +1,10 @@
+{
+  "name": "Aplikasi Resmi Grup  Informatika \u0026 Soal Ujian UPTD SMP Negeri 7 Kisaran",
+  "description": "Aplikasi Resmi Grup Informatika \u0026 Soal Ujian Kurikulum Merdeka (Deep Learning) Fase D Tingkat SMP Tahun Ajaran 2026/2027, Aplikasi Resmi Grup Informatika \u0026 Soal ini Dibuat oleh Eksa Yudika Sirait - UPTD SMP Negeri 7 Kisaran.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

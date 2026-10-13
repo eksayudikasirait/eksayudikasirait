@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="id" class="dark bg-slate-950 text-slate-100">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      (function () {
+        var shouldIgnoreError = function (msg, filename, lineno) {
+          var s = String(msg || '').trim();
+          var f = String(filename || '').trim();
+          if (
+            s === 'Script error.' ||
+            s === 'Script error' ||
+            s.indexOf('WebSocket closed without opened') !== -1 ||
+            s.indexOf('failed to connect to websocket') !== -1 ||
+            s.indexOf('[vite]') !== -1 ||
+            f.indexOf('@vite/client') !== -1 ||
+            s.indexOf('auth/popup-closed-by-user') !== -1 ||
+            s.indexOf('auth/cancelled-popup-request') !== -1 ||
+            s.indexOf('auth/popup-blocked') !== -1 ||
+            s.indexOf('auth/unauthorized-domain') !== -1 ||
+            s.indexOf('Sign in error:') !== -1 ||
+            s.indexOf('ResizeObserver') !== -1 ||
+            s.indexOf('Permissions check failed') !== -1 ||
+            s.indexOf('API can only be initiated by a user gesture') !== -1 ||
+            s.indexOf('requestFullscreen') !== -1 ||
+            s.indexOf('interrupted by a call to pause') !== -1 ||
+            s.indexOf('interrupted by a new load request') !== -1 ||
+            s.indexOf('OverQuotaMapError') !== -1 ||
+            s.indexOf('QuotaExceededError') !== -1 ||
+            s.indexOf('cannotExportFile') !== -1 ||
+            s.indexOf('cannot be exported by the user') !== -1 ||
+            (!filename && !lineno && (s === '' || s.indexOf('Script error') === 0))
+          ) {
+            return true;
+          }
+          return false;
+        };
+        var origConsoleError = console.error;
+        console.error = function () {
+          var args = Array.prototype.slice.call(arguments);
+          var msg = args
+            .map(function (a) {
+              return String((a && (a.message || a.stack)) || a || '');
+            })
+            .join(' ');
+          if (shouldIgnoreError(msg)) {
+            return;
+          }
+          return origConsoleError.apply(console, args);
+        };
+        var origConsoleWarn = console.warn;
+        console.warn = function () {
+          var args = Array.prototype.slice.call(arguments);
+          var msg = args
+            .map(function (a) {
+              return String((a && (a.message || a.stack)) || a || '');
+            })
+            .join(' ');
+          if (shouldIgnoreError(msg)) {
+            return;
+          }
+          return origConsoleWarn.apply(console, args);
+        };
+        window.addEventListener(
+          'error',
+          function (e) {
+            var errMsg = (e && e.message) || (e && e.error && e.error.message) || '';
+            if (shouldIgnoreError(errMsg, e && e.filename, e && e.lineno)) {
+              e.stopImmediatePropagation();
+              e.preventDefault();
+            }
+          },
+          true
+        );
+        window.addEventListener(
+          'unhandledrejection',
+          function (e) {
+            var reason = (e && e.reason) || '';
+            var reasonStr = String((reason && (reason.message || reason.stack || reason.code)) || reason);
+            if (shouldIgnoreError(reasonStr)) {
+              e.stopImmediatePropagation();
+              e.preventDefault();
+            }
+          },
+          true
+        );
+        var origAdd = window.addEventListener;
+        window.addEventListener = function (type, listener, options) {
+          if (type === 'error' && typeof listener === 'function') {
+            var wrapped = function (e) {
+              var errMsg = (e && e.message) || (e && e.error && e.error.message) || '';
+              if (shouldIgnoreError(errMsg, e && e.filename, e && e.lineno)) {
+                return;
+              }
+              return listener.call(this, e);
+            };
+            return origAdd.call(this, type, wrapped, options);
+          }
+          if (type === 'unhandledrejection' && typeof listener === 'function') {
+            var wrappedRejection = function (e) {
+              var reason = (e && e.reason) || '';
+              var reasonStr = String((reason && (reason.message || reason.stack || reason.code)) || reason);
+              if (shouldIgnoreError(reasonStr)) {
+                return;
+              }
+              return listener.call(this, e);
+            };
+            return origAdd.call(this, type, wrappedRejection, options);
+          }
+          return origAdd.call(this, type, listener, options);
+        };
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ANBK Informatika" />
+    <meta name="theme-color" content="#020617" />
+    <meta name="full-screen" content="yes" />
+    <meta name="browsermode" content="application" />
+    <meta name="x5-fullscreen" content="true" />
+    <meta name="x5-page-mode" content="app" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <script>
+      (function () {
+        try {
+          var swResetKey = 'anbk_sw_cache_cleared_v9_9_fix';
+          if (window.localStorage && !window.localStorage.getItem(swResetKey)) {
+            window.localStorage.setItem(swResetKey, '1');
+            if ('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations) {
+              navigator.serviceWorker.getRegistrations().then(function (regs) {
+                regs.forEach(function (reg) {
+                  reg.unregister();
+                });
+              });
+            }
+            if ('caches' in window && window.caches.keys) {
+              window.caches.keys().then(function (keys) {
+                keys.forEach(function (k) {
+                  window.caches.delete(k);
+                });
+              });
+            }
+          }
+        } catch (err) {}
+
+        var isIOS = function () {
+          var ua = navigator.userAgent || '';
+          return /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        };
+        var isInFullscreen = function () {
+          return Boolean(
+            document.fullscreenElement ||
+              document.webkitFullscreenElement ||
+              document.mozFullScreenElement ||
+              document.msFullscreenElement ||
+              (window.navigator && window.navigator.standalone) ||
+              (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches)
+          );
+        };
+
+        var lastFullscreenAttempt = 0;
+        var triggerAutoFullscreen = function () {
+          try {
+            var now = Date.now();
+            if (now - lastFullscreenAttempt < 500) {
+              return;
+            }
+            lastFullscreenAttempt = now;
+
+            var docEl = document.documentElement;
+            if (docEl) {
+              docEl.classList.add('ios-fullscreen-immersive');
+            }
+
+            if (!isInFullscreen() && docEl && typeof docEl.requestFullscreen === 'function') {
+              var p = docEl.requestFullscreen({ navigationUI: 'hide' });
+              if (p && typeof p.catch === 'function') {
+                p.catch(function () {});
+              }
+            } else if (!isInFullscreen() && docEl && typeof docEl.webkitRequestFullscreen === 'function') {
+              docEl.webkitRequestFullscreen();
+            }
+
+            if (navigator.keyboard && typeof navigator.keyboard.lock === 'function') {
+              navigator.keyboard.lock(['Escape']).catch(function () {});
+            }
+            if (navigator.wakeLock && typeof navigator.wakeLock.request === 'function') {
+              navigator.wakeLock.request('screen').catch(function () {});
+            }
+          } catch (err) {
+            // Abaikan batasan browser sandbox / iframe
+          }
+        };
+
+        window.__requestAutoFullscreenAllPlatforms = triggerAutoFullscreen;
+
+        // Picu penguncian layar penuh pada interaksi pengguna yang valid (user gesture)
+        var userGestureEvents = ['click', 'pointerup', 'touchend', 'keydown'];
+        userGestureEvents.forEach(function (evtName) {
+          window.addEventListener(evtName, triggerAutoFullscreen, { capture: true, passive: true });
+        });
+
+        // Proteksi anti-select pada materi & soal, tetapi izinkan pengisian input/textarea
+        var isInputField = function (el) {
+          if (!el) return false;
+          var tag = (el.tagName || '').toUpperCase();
+          return tag === 'INPUT' || tag === 'TEXTAREA' || Boolean(el.isContentEditable);
+        };
+
+        document.addEventListener(
+          'selectstart',
+          function (e) {
+            if (isInputField(e.target)) {
+              return true;
+            }
+            e.preventDefault();
+            return false;
+          },
+          { capture: true }
+        );
+
+        document.addEventListener(
+          'dragstart',
+          function (e) {
+            if (isInputField(e.target)) {
+              return true;
+            }
+            e.preventDefault();
+            return false;
+          },
+          { capture: true }
+        );
+
+        document.addEventListener(
+          'selectionchange',
+          function () {
+            try {
+              if (isInputField(document.activeElement)) {
+                return;
+              }
+              var sel = window.getSelection && window.getSelection();
+              if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+                sel.removeAllRanges();
+              }
+            } catch (err) {}
+          },
+          { capture: true }
+        );
+      })();
+    </script>
+    <title>V.9.9.9 Aplikasi Grup Informatika &amp; Soal Ujian UPTD SMP Negeri 7 Kisaran</title>
+    <meta name="description" content="Aplikasi Grup Informatika &amp; Soal Ujian Kurikulum Merdeka (Deep Learning) Fase D Tingkat SMP Tahun Ajaran 2026/2027, Aplikasi Grup Informatika &amp; Soal ini Dibuat oleh Eksa Yudika Sirait - UPTD SMP Negeri 7 Kisaran." />
+    <meta property="og:title" content="V.9.9.9 Aplikasi Grup Informatika &amp; Soal Ujian UPTD SMP Negeri 7 Kisaran" />
+    <meta property="og:description" content="Aplikasi Grup Informatika &amp; Soal Ujian Kurikulum Merdeka (Deep Learning) Fase D Tingkat SMP Tahun Ajaran 2026/2027, Aplikasi Grup Informatika &amp; Soal ini Dibuat oleh Eksa Yudika Sirait - UPTD SMP Negeri 7 Kisaran." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
+  <body class="bg-slate-950 text-slate-100 antialiased select-none">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
